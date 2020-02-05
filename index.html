@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>GCRL GUI</title>
+        <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+
+        <link rel="stylesheet" href="css/style.css">
+
+        <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+        <script src="js/jquery-3.4.1.min.js"></script>
+        <script>if (window.module) module = window.module;</script>
+
+        <script>
+        const SerialPort = require('serialport');
+        const { Menu, MenuItem, dialog } = require('electron').remote;
+        const fs = require('fs');
+        const readline = require('readline');
+        </script>
+    </head>
+
+    <body>
+        <svg id="preview" width="600" height="600"></svg>
+        <section>
+            <button id="start-btn">Start !</button>
+        </section>
+
+        <script src="js/app.js"></script>
+        <script src="js/menu.js"></script>
+    </body>
+</html>

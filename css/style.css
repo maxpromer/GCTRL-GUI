@@ -1,0 +1,31 @@
+html, body {
+    box-sizing: border-box;
+}
+
+body {
+    background: #f3f3f3;
+}
+
+svg {
+    position: absolute;
+    top: 50%;
+    left: calc(50% - 100px);
+    transform: translateX(-50%) translateY(-50%);  
+    
+    background: #FFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+section {
+    width: 200px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: #FFF;
+
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+
+    text-align: center;
+    padding: 20px;
+}
