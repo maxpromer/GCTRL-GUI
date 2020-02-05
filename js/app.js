@@ -4,6 +4,8 @@ let svgScale = 2.0;
 
 let svg = document.getElementById("preview");
 
+let gcodeLine = [];
+
 let loadGCodeFile = () => {
     let rd = readline.createInterface({
         input: fs.createReadStream(openFile),
@@ -19,6 +21,7 @@ let loadGCodeFile = () => {
 
     rd.on('line', function(line) {
         // console.log(line);
+        gcodeLine.push(line);
         
         if (/^M300\s?S30/g.test(line)) { // pen down
             penDownFlag = true;
@@ -78,7 +81,9 @@ let serialConnect = (port) => {
 
     serial.on('data', (chunk) => {
         console.log(`Received ${chunk.length} bytes of data.`);
-        if (chunk.indexOf("Move to")) {
+        console.log('data', chunk.toString('utf-8'));
+
+        if (chunk.toString('utf-8').indexOf("ok") >= 0) {
             moveEND = true;
         }
     });
@@ -88,28 +93,18 @@ let serialConnect = (port) => {
     });
 };
 
-function send1() {
-    serial.write('100,0,0');
-    console.log("Send1");
-}
-
-function send2() {
-    serial.write('0,0,0');
-    console.log("Send2");
-}
-
 let delay = (time_ms) => {
     return new Promise((resolve, reject) => {
         setTimeout(resolve, time_ms);
     });
 };
 
-let moveTo = async (x, y, z) => {
+let writeLine = async (x, y, z) => {
     moveEND = false;
-    serial.write(`${x},${y},${z}`);
+    serial.write(`${writeLine}\n`);
     while(moveEND === false) {
         console.log("Wait move END");
-        await delay(100);
+        await delay(10);
     }
 }
 
@@ -201,7 +196,7 @@ $(async () => {
             }
         });
     });
-
+*/
     // List port
     let ports = await SerialPort.list();
     if (ports.length == 0) {
@@ -211,5 +206,11 @@ $(async () => {
 
     // Connect
     serialConnect(ports[0].path);
-    */
+    
+
+    $("#start-btn").click(async () => {
+        for (let line of gcodeLine) {
+            await writeLine(line);
+        }
+    });
 });
