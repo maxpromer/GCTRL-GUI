@@ -8,6 +8,7 @@
         <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
 
         <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="fontawesome/css/all.css" >
 
         <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
         <script src="js/jquery-3.4.1.min.js"></script>
@@ -24,7 +25,29 @@
     <body>
         <svg id="preview" width="600" height="600"></svg>
         <section>
-            <button id="start-btn">Start !</button>
+            <div class="box-tools">
+                <h2>Control</h2>
+                <div class="box-top">
+                    <button id="p-x-btn"><i class="fas fa-arrow-left"></i></button>
+                </div>
+                <div class="box-mid">
+                    <button id="n-x-btn"><i class="fas fa-arrow-right"></i></button>
+                    <button id="p-y-btn"><i class="fas fa-arrow-up"></i></button>
+                </div>
+                <div class="box-bottom">
+                    <button id="n-y-btn"><i class="fas fa-arrow-down"></i></button>
+                </div>
+
+                <div class="box-pen">
+                    <button id="pen-up-btn"><i class="fas fa-angle-up"></i></button>
+                    <button id="pen-down-btn"><i class="fas fa-angle-down"></i></button>
+                </div>
+            </div>
+            <div class="box-start">
+                <h2>Job</h2>
+                <button id="preview-btn">Preview</button>
+                <button id="start-btn">Start !</button>
+            </div>
         </section>
 
         <script src="js/app.js"></script>

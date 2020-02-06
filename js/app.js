@@ -1,10 +1,12 @@
 let openFile;
 
-let svgScale = 2.0;
+let svgScale = 2.5;
 
 let svg = document.getElementById("preview");
 
 let gcodeLine = [];
+
+let minX = 99999999999.99, minY = 99999999999.99, maxX = -99999999999.99, maxY = -99999999999.99;
 
 let loadGCodeFile = () => {
     let rd = readline.createInterface({
@@ -17,56 +19,99 @@ let loadGCodeFile = () => {
     let lastX = 0;
     let lastY = 0;
     let pathCode = "";
-    let minX = 0, minY = 0, maxX = 0, maxY = 0;
+    
 
     rd.on('line', function(line) {
         // console.log(line);
         gcodeLine.push(line);
-        
-        if (/^M300\s?S30/g.test(line)) { // pen down
-            penDownFlag = true;
-            pathCode = `${lastX},${lastY}`;
-        } else if (/^M300\s?S50/g.test(line)) { // pen up
-            penDownFlag = false;
-            
-            let polyline = document.createElement('polyline');
-            polyline.setAttribute('points', pathCode);
-            polyline.setAttribute('style', 'fill:none;stroke:black;stroke-width:1');
-            console.log(polyline);
-
-            svg.appendChild(polyline);
-
-            pathCode = "";
-        } else if (/^G[12]\sX[0-9-.]+\sY[0-9-.]+/g.test(line)) { // drew
-            let res = /^G[12]\sX([0-9-.]+)\sY([0-9-.]+)/g.exec(line);
-            let x = (parseFloat(res[1]) + 10) * svgScale; // 10mm offset
-            let y = (300 - parseFloat(res[2]) - 10) * svgScale; // 10mm offset
-            // console.log(x, y);
-
-            if (penDownFlag) {
-                pathCode += ` ${x},${y}`;
-            }
-
-            lastX = x;
-            lastY = y;
-
-            if (x < minX) {
-                minX = x;
-            }
-            if (x > maxX) {
-                maxX = x;
-            }
-            if (y < minY) {
-                minY = y;
-            }
-            if (y > maxY) {
-                maxY = y;
-            }
-        }
     });
 
     rd.on('close', () => {
+        // Find size
+        for (let line of gcodeLine) {
+            if (/^M300\s?S30/g.test(line)) { // pen down
+                penDownFlag = true;
+
+                if (lastX < minX) {
+                    minX = lastX;
+                }
+                if (lastX > maxX) {
+                    maxX = lastX;
+                }
+                if (lastY < minY) {
+                    minY = lastY;
+                }
+                if (lastY > maxY) {
+                    maxY = lastY;
+                }
+            } else if (/^M300\s?S50/g.test(line)) { // pen up
+                penDownFlag = false;
+            } else if (/^G[12]\sX[0-9-.]+\sY[0-9-.]+/g.test(line)) {
+                let res = /^G[12]\sX([0-9-.]+)\sY([0-9-.]+)/g.exec(line);
+                let x = parseFloat(res[1]);
+                let y = parseFloat(res[2]);
+
+                if (penDownFlag) {
+                    if (x < minX) {
+                        minX = x;
+                    }
+                    if (x > maxX) {
+                        maxX = x;
+                    }
+                    if (y < minY) {
+                        minY = y;
+                    }
+                    if (y > maxY) {
+                        maxY = y;
+                    }
+                }
+
+                lastX = x;
+                lastY = y;
+            }
+        }
+
+        let width = Math.abs(maxX - minX);
+        let height = Math.abs(maxY - minY);
+
+        // width += 10; // add 10mm
+        // height += 10; // add 10mm
+
+        // Draw preview
+        for (let line of gcodeLine) {
+            if (/^M300\s?S30/g.test(line)) { // pen down
+                penDownFlag = true;
+                pathCode = `${lastX},${lastY}`;
+            } else if (/^M300\s?S50/g.test(line)) { // pen up
+                penDownFlag = false;
+                
+                let polyline = document.createElement('polyline');
+                polyline.setAttribute('points', pathCode);
+                polyline.setAttribute('style', 'fill:none;stroke:black;stroke-width:1');
+                // console.log(polyline);
+    
+                svg.appendChild(polyline);
+    
+                pathCode = "";
+            } else if (/^G[12]\sX[0-9-.]+\sY[0-9-.]+/g.test(line)) { // drew
+                let res = /^G[12]\sX([0-9-.]+)\sY([0-9-.]+)/g.exec(line);
+                let x = (parseFloat(res[1]) + (minX < 0 ? Math.abs(minX) : -minX)) * svgScale;
+                let y = (height - parseFloat(res[2]) - (minY < 0 ? Math.abs(minY) : -minY)) * svgScale;
+                // console.log(x, y);
+    
+                if (penDownFlag) {
+                    pathCode += ` ${x},${y}`;
+                }
+    
+                lastX = x;
+                lastY = y;
+            }
+        }
+
+        svg.setAttribute('width', width * svgScale);
+        svg.setAttribute('height', height * svgScale);
         svg.innerHTML = svg.innerHTML + ' SVG Not support';
+        
     });
 };
 

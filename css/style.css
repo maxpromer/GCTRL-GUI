@@ -25,7 +25,43 @@ section {
     background: #FFF;
 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-
-    text-align: center;
-    padding: 20px;
 }
+
+section > .box-tools {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+section > .box-tools > .box-top {
+    text-align: center;
+}
+
+section > .box-tools > .box-mid {
+    display: flex;
+    justify-content: space-between;
+}
+
+section > .box-tools > .box-mid > button {
+
+}
+
+section > .box-tools > .box-bottom {
+    text-align: center;
+
+    margin-bottom: 10px;
+}
+
+section > .box-tools > .box-pen {
+    text-align: center;
+}
+
+section > .box-start {
+    padding: 10px;
+}
+
+section > .box-start > button {
+    width: 100%;
+}
+
+
+
