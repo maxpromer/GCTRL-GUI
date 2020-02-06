@@ -116,7 +116,6 @@ let loadGCodeFile = () => {
 };
 
 
-
 let serial;
 let file_image;
 let moveEND = false;
@@ -144,9 +143,9 @@ let delay = (time_ms) => {
     });
 };
 
-let writeLine = async (x, y, z) => {
+let writeLine = async (line) => {
     moveEND = false;
-    serial.write(`${writeLine}\n`);
+    serial.write(`${line}\n`);
     while(moveEND === false) {
         console.log("Wait move END");
         await delay(10);
@@ -253,9 +252,61 @@ $(async () => {
     serialConnect(ports[0].path);
     
 
-    $("#start-btn").click(async () => {
-        for (let line of gcodeLine) {
+    $("#preview-btn").click(async () => {
+        let gcodeLineWithoutPen = gcodeLine.filter(line => !(/^M300\s?S30/g.test(line)));
+        for (let line of gcodeLineWithoutPen) {
+            if (/^G[12]\sX[0-9-.]+\sY[0-9-.]+/g.test(line)) {
+                let res = /^G[12]\sX([0-9-.]+)\sY([0-9-.]+)/g.exec(line);
+                let x = parseFloat(res[1]);
+                let y = parseFloat(res[2]);
+
+                $("#log-text").text(`Move to ${x},${y}`);
+            }
+
             await writeLine(line);
         }
+        $("#log-text").text('END');
+    });
+
+    $("#start-btn").click(async () => {
+        for (let line of gcodeLine) {
+            if (/^M300\s?S30/g.test(line)) { // pen down
+                $("#log-text").text(`Pen Down`);
+            } else if (/^M300\s?S50/g.test(line)) { // pen up
+                $("#log-text").text(`Pen Up`);
+            } else if (/^G[12]\sX[0-9-.]+\sY[0-9-.]+/g.test(line)) {
+                let res = /^G[12]\sX([0-9-.]+)\sY([0-9-.]+)/g.exec(line);
+                let x = parseFloat(res[1]);
+                let y = parseFloat(res[2]);
+
+                $("#log-text").text(`Move to ${x},${y}`);
+            }
+
+            await writeLine(line);
+        }
+        $("#log-text").text('END');
+    });
+
+    let saveX = 0;
+    let saveY = 0;
+
+    let moveXY = async (x, y) => {
+        $("#log-text").text(`Move to ${saveX},${saveY}`);
+        await writeLine(`G1 X${saveX} Y${saveY} F3500.00`);
+    }
+
+    $("#p-x-btn").click(async () => moveXY(saveX += 10, saveY));
+    $("#n-x-btn").click(async () => moveXY(saveX -= 10, saveY));
+    $("#p-y-btn").click(async () => moveXY(saveX, saveY += 10));
+    $("#n-y-btn").click(async () => moveXY(saveX, saveY -= 10));
+
+    $("#pen-up-btn").click(async () => {
+        $("#log-text").text(`Pen up`);
+        await writeLine(`M300 S50.00`);
+    });
+
+    $("#pen-down-btn").click(async () => {
+        $("#log-text").text(`Pen up`);
+        await writeLine(`M300 S30.00`);
     });
 });
