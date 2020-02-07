@@ -25,6 +25,13 @@
     <body>
         <svg id="preview" width="600" height="600"></svg>
         <section>
+            <div class="box-connection">
+                <h2>Connection</h2>
+                <div class="box-inline">
+                    <select id="list-ports"></select>
+                    <button id="connect-btn"><i class="fas fa-plug"></i></button>
+                </div>
+            </div>
             <div class="box-tools">
                 <h2>Control</h2>
                 <div class="box-top">
@@ -45,8 +52,9 @@
             </div>
             <div class="box-start">
                 <h2>Job</h2>
-                <button id="preview-btn">Preview</button>
-                <button id="start-btn">Start !</button>
+                <button id="preview-btn"><i class="fas fa-search"></i> Preview</button>
+                <button id="start-btn"><i class="fas fa-pencil-ruler"></i> Start !</button>
+                <button id="stop-btn" class="stop"><i class="far fa-hand-paper"></i> Stop</button>
                 <div id="log-text" style="margin-top: 20px;">Not do thing.</div>
             </div>
         </section>

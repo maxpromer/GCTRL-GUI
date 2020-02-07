@@ -9,7 +9,7 @@ body {
 svg {
     position: absolute;
     top: 50%;
-    left: calc(50% - 100px);
+    left: calc(50% - 130px);
     transform: translateX(-50%) translateY(-50%);  
     
     background: #FFF;
@@ -17,7 +17,7 @@ svg {
 }
 
 section {
-    width: 200px;
+    width: 260px;
     height: 100%;
     position: absolute;
     right: 0;
@@ -27,9 +27,23 @@ section {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
 }
 
+section > .box-connection {
+    padding: 20px;
+}
+
+section > .box-connection > .box-inline {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+section > .box-connection > .box-inline > select {
+    margin-right: 10px;
+    width: 100%;
+}
+
 section > .box-tools {
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 20px;
 }
 
 section > .box-tools > .box-top {
@@ -56,11 +70,47 @@ section > .box-tools > .box-pen {
 }
 
 section > .box-start {
-    padding: 10px;
+    padding: 20px;
 }
 
 section > .box-start > button {
     width: 100%;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 12px 16px;
+    background-color: #28B463;
+    color: #FFF;
+    border: none;
+    border-radius: 3px;
+
+    outline: none;
+}
+
+button:hover {
+    background-color: #239B56;
+}
+
+button:active {
+    background-color: #186A3B;
+}
+
+button.stop {
+    background-color: #E74C3C;
+}
+
+button.stop:hover {
+    background-color: #A93226;
+}
+
+button.stop:active {
+    background-color: #78281F;
+}
+
+h2 {
+    margin: 0;
+    margin-bottom: 20px;
 }
 
 

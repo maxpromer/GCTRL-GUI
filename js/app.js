@@ -143,13 +143,25 @@ let delay = (time_ms) => {
     });
 };
 
+let timeout = 10000;
+
 let writeLine = async (line) => {
     moveEND = false;
-    serial.write(`${line}\n`);
-    while(moveEND === false) {
-        console.log("Wait move END");
-        await delay(10);
+    try {
+        serial.write(`${line}\n`);
+        let timer = 0;
+        while(moveEND === false && timer < timeout) {
+            console.log("Wait move END");
+            await delay(10);
+            timer += 10;
+        }
+        if (timer >= timeout) {
+            dialog.showErrorBox('Write Error', 'write to CNC timeout')
+        }
+    } catch(e) {
+        dialog.showErrorBox('Error write to CNC', e.toString());
     }
+    
 }
 
 $(async () => {
@@ -241,18 +253,28 @@ $(async () => {
         });
     });
 */
-    // List port
-    let ports = await SerialPort.list();
-    if (ports.length == 0) {
-        console.log("Not found port");
-        return;
-    }
 
-    // Connect
-    serialConnect(ports[0].path);
-    
+    let html = "";
+    let ports = await SerialPort.list();
+    for (let port of ports) {
+        html += `<option>${port.path}</option>`;
+    }
+    $("#list-ports").html(html);
+
+    $("#connect-btn").click(() => {
+        try {
+            serialConnect($("#list-ports").val());
+            $("#list-ports").prop("disabled", true);
+        } catch(e) {
+            dialog.showErrorBox('Connection error', 'Connect to CNC fail !, ' + e);
+        }
+    });
 
     $("#preview-btn").click(async () => {
+        $("#preview-btn").hide();
+        $("#start-btn").hide();
+        $("#stop-btn").show();
+
         let gcodeLineWithoutPen = gcodeLine.filter(line => !(/^M300\s?S30/g.test(line)));
         for (let line of gcodeLineWithoutPen) {
             if (/^G[12]\sX[0-9-.]+\sY[0-9-.]+/g.test(line)) {
@@ -266,9 +288,21 @@ $(async () => {
             await writeLine(line);
         }
         $("#log-text").text('END');
+        dialog.showMessageBox({
+            type: "info",
+            message: 'Preview run completed'
+        });
+
+        $("#preview-btn").show();
+        $("#start-btn").show();
+        $("#stop-btn").hide();
     });
 
     $("#start-btn").click(async () => {
+        $("#preview-btn").hide();
+        $("#start-btn").hide();
+        $("#stop-btn").show();
+        
         for (let line of gcodeLine) {
             if (/^M300\s?S30/g.test(line)) { // pen down
                 $("#log-text").text(`Pen Down`);
@@ -285,6 +319,14 @@ $(async () => {
             await writeLine(line);
         }
         $("#log-text").text('END');
+        dialog.showMessageBox({
+            type: "info",
+            message: 'Job run completed'
+        });
+
+        $("#preview-btn").show();
+        $("#start-btn").show();
+        $("#stop-btn").hide();
     });
 
     let saveX = 0;
